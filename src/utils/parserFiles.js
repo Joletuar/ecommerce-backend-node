@@ -7,12 +7,11 @@ const { v2: cloudrinary } = require('cloudinary');
 cloudrinary.config(process.env.CLOUDINARY_URL || '');
 
 const parserFiles = async (req) => {
-    // Analizar el formulario que está llegando
+    // Analiza el formulario que está llegando
     const form = new formidable.IncomingForm();
 
     return new Promise((resolve, reject) => {
         form.parse(req, async (err, fields, files) => {
-            // console.log({ err, fields, files });
 
             // Si tenemos un error rechazamos
             if (err) {
@@ -46,7 +45,7 @@ const saveFile = async (file) => {
     const data = await cloudrinary.uploader.upload(file.filepath);
     // console.log(data);
 
-    // Retorname el url público
+    // Retorna el url público
     const { secure_url } = data;
 
     return secure_url;

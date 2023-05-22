@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use(
     cors({
-        // Habiliamos que nuestro front tenga acceso
+        // Habilitamos que nuestro front tenga acceso
         credentials: true,
         optionSuccessStatus: 200,
         origin: 'http://localhost:3000',

@@ -1,3 +1,6 @@
+// Verificamos que exista un token
+// TODO: validar que el token sea válido
+
 const verifySession = async (req, res = response, next) => {
     const token = req.headers['x-token'];
 

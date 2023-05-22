@@ -16,7 +16,7 @@ const getPaypalBearerToken = async () => {
             method: 'POST',
             // Esto se debe enviar siempre en el body
             body,
-            // El debe ser de este tipo
+            // Debe ser de este tipo
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 Authorization: `Basic ${base64Token}`,
