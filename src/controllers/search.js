@@ -46,7 +46,6 @@ const searchProductsByWord = async (req, res = response) => {
                 products: updatedProducts,
             });
         } catch (error) {
-            console.log(error);
             await db.disconnect();
             res.status(400).json({
                 ok: false,

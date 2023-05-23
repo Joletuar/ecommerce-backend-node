@@ -131,8 +131,6 @@ const getOrders = async (req, res = response) => {
                 .populate('user', 'name email') // Obtener los valores de otra colección en base a la referencia
                 .lean();
 
-            console.log(orders);
-
             return res.status(200).json({
                 ok: true,
                 orders,

@@ -97,7 +97,6 @@ const createOrders = async (req, res = response) => {
                 });
             } catch (error) {
                 // Los errors lanzados dentro del try serán atrapados por este catch
-                console.log(error);
 
                 res.status(400).json({
                     ok: false,
@@ -138,7 +137,7 @@ const getOrder = async (req, res = response) => {
 
         try {
             const orderFound = await Order.findOne({ _id: id }).lean();
-            console.log(orderFound);
+
             if (!orderFound) {
                 throw new Error('La orden no existe');
             }
@@ -174,8 +173,6 @@ const gerOrdersByUser = async (req, res = response) => {
             message: 'Id de usuario no válido',
         });
     }
-
-    console.log(id);
 
     try {
         await db.connect();
