@@ -6,6 +6,8 @@ const Product = require('../models/Products');
 const db = require('../database/db');
 const parserFiles = require('../utils/parserFiles');
 const { v2: cloudinary } = require('cloudinary');
+const handleErrors = require("../utils/handleErrors");
+
 
 const getStatistics = async (req, res = response) => {
     console.log('----> Petición a /api/admin/dashboard');
@@ -26,10 +28,9 @@ const getStatistics = async (req, res = response) => {
             });
         })
         .catch((error) => {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+
+            handleErrors(res, 400, error)
+
         });
 };
 
@@ -42,25 +43,19 @@ const getUsers = async (req, res = response) => {
         try {
             const users = await User.find().select('-password').lean();
 
-            if (!users) {
-                throw new Error('No existen usuarios en registrados todavia');
-            }
-
             return res.status(200).json({
                 ok: true,
                 users,
             });
         } catch (error) {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+
+            handleErrors(req, 400,  "ERROR_GET_USERS");
+
         }
     } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+
+        handleErrors(req, 500,  "ERROR_DB");
+
     } finally {
         await db.disconnect();
     }
@@ -72,10 +67,9 @@ const updateUser = async (req, res = response) => {
     const { userId = '', rol = '' } = req.body;
 
     if (!userId || !rol) {
-        return res.status(400).json({
-            ok: false,
-            message: 'El id y rol son campos obligatorios',
-        });
+
+        handleErrors(req, 400,  "ERROR_ID_USER");
+
     }
 
     try {
@@ -102,16 +96,12 @@ const updateUser = async (req, res = response) => {
                 message: 'Rol actualizado con éxito',
             });
         } catch (error) {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            
+            handleErrors(req, 400,  error.message.toUpperCase());
+
         }
     } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(req, 500,  "ERROR_DB");
     } finally {
         await db.disconnect();
     }
@@ -136,16 +126,10 @@ const getOrders = async (req, res = response) => {
                 orders,
             });
         } catch (error) {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(req, 400,  "ERROR_GET_ORDERS");
         }
     } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(req, 500,  "ERROR_DB");
     } finally {
         await db.disconnect();
     }
@@ -159,35 +143,30 @@ const getProducts = async (req, res = response) => {
 
         try {
             const products = await Product.find().sort({ title: 'asc' }).lean();
+            let updatedProducts = null;
 
-            if (!products) {
-                throw new Error('No se encontraron productos');
-            }
-
-            const updatedProducts = products.map((producto) => {
-                producto.images = producto.images.map((image) => {
-                    return image.includes('http')
+            if (products) {
+                
+                updatedProducts = products.map((producto) => {
+                    producto.images = producto.images.map((image) => {
+                        return image.includes('http')
                         ? image
                         : `${process.env.HOST_NAME}products/${image}`;
+                    });
+                    return producto;
                 });
-                return producto;
-            });
 
+            } 
+                
             return res.status(200).json({
                 ok: true,
                 products: updatedProducts,
             });
         } catch (error) {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(req, 400,  "ERROR_GET_PRODUCTS");
         }
     } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(req, 500,  "ERROR_DB");
     } finally {
         await db.disconnect();
     }
@@ -199,17 +178,11 @@ const updateProducts = async (req, res = response) => {
     const { product = {} } = req.body;
 
     if (!Object.keys(product).length) {
-        return res.status(400).json({
-            ok: false,
-            message: 'Los datos del producto a actualizar son obligatorios',
-        });
+        handleErrors(req, 400,  "ERROR_BODY_REQUEST");
     }
 
     if (product?.images.length < 2) {
-        return res.status(400).json({
-            ok: false,
-            message: 'Mínimo 2 imágenes',
-        });
+        handleErrors(req, 400,  "ERROR_NUMBER_IMAGES");
     }
 
     try {
@@ -251,16 +224,10 @@ const updateProducts = async (req, res = response) => {
                 updatedProduct,
             });
         } catch (error) {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(req, 400,  error.message.toUpperCase());
         }
     } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(req, 500,  "ERROR_DB");
     } finally {
         await db.disconnect();
     }
@@ -272,17 +239,11 @@ const addProducts = async (req, res = response) => {
     const { product = {} } = req.body;
 
     if (!Object.keys(product).length) {
-        return res.status(400).json({
-            ok: false,
-            message: 'La información del producto no es válida',
-        });
+        handleErrors(req, 400,  "ERROR_BODY_REQUEST");
     }
 
     if (product?.images.length < 2) {
-        return res.status(400).json({
-            ok: false,
-            message: 'Mínimo 2 imágenes',
-        });
+        handleErrors(req, 400,  "ERROR_NUMBER_IMAGES");
     }
 
     try {
@@ -305,16 +266,10 @@ const addProducts = async (req, res = response) => {
                 producto: newProduct,
             });
         } catch (error) {
-            return res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(req, 400,  error.message.toUpperCase());
         }
     } catch (error) {
-        return res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(req, 500,  "ERROR_DB");
     } finally {
         await db.disconnect();
     }
@@ -332,10 +287,7 @@ const uploadFiles = async (req, res = response) => {
             image_url,
         });
     } catch (error) {
-        return res.status(400).json({
-            ok: false,
-            message: error,
-        });
+        handleErrors(req, 400,  "ERROR_UPLOAD_FILES");
     }
 };
 

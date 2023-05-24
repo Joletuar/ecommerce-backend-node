@@ -30,7 +30,7 @@ const calculeStatistics = async () => {
             Products.where('inStock').lte(10).count(),
         ]);
     } catch (error) {
-        return { ok: false, message: 'Contacte con el soporte' };
+        return  'ERROR_CALCULATE_STATISTICS';
     } finally {
         await db.disconnect();
     }
