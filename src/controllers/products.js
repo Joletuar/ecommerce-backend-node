@@ -2,16 +2,14 @@ const { response } = require('express');
 const Products = require('../models/Products');
 const db = require('../database/db');
 const { validGenders } = require('../database/constanst');
+const handleErrors = require("../utils/handleErrors");
 
 // Obtenemos todos los productos, o los productos basados en un gender
 
 const getProducts = async (req, res = response) => {
     console.log('---> Petición a /api/products');
 
-    // console.log(req.query);
-
     // Accediendo al query de la request podemos obtener los query params de la URL
-
     const { gender = 'all' } = req.query;
 
     try {
@@ -29,8 +27,6 @@ const getProducts = async (req, res = response) => {
                 .select('title images price inStock slug')
                 .lean(); // Con el lean traemos información más limpia y ligera
 
-            await db.disconnect();
-
             const updatedProducts = products.map((producto) => {
                 producto.images = producto.images.map((image) => {
                     return image.includes('http')
@@ -45,19 +41,13 @@ const getProducts = async (req, res = response) => {
                 products: updatedProducts,
             });
         } catch (error) {
-            await db.disconnect();
 
-            res.status(400).json({
-                ok: false,
-                message: 'Error recuperar los productos',
-            });
+            handleErrors(res, 400, "ERROR_GET_PRODUCTS");
         }
     } catch (error) {
+        handleErrors(res, 500, "ERROR_DB");
+    }finally {
         await db.disconnect();
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
     }
 };
 
@@ -71,10 +61,7 @@ const getProductBySlug = async (req, res = response) => {
     const { slug = '' } = req.params;
 
     if (slug.length <= 0) {
-        return res.status(400).json({
-            ok: false,
-            message: 'El slug enviado no es valido',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_SLUG");
     }
 
     if (slug === 'new') {
@@ -93,14 +80,9 @@ const getProductBySlug = async (req, res = response) => {
 
         try {
             const producto = await Products.findOne({ slug }).lean();
-            await db.disconnect();
 
             if (!producto) {
-                await db.disconnect();
-                return res.status(404).json({
-                    ok: false,
-                    message: 'Producto no encontrado',
-                });
+                throw new Error ("Producto no encontrado")
             }
 
             producto.images = producto.images.map((image) => {
@@ -114,18 +96,12 @@ const getProductBySlug = async (req, res = response) => {
                 producto,
             });
         } catch (error) {
-            await db.disconnect();
-            res.status(400).json({
-                ok: false,
-                message: 'Error recuperar el producto por slug',
-            });
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
+        handleErrors(res, 500, "ERROR_DB");
+    }finally {
         await db.disconnect();
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
     }
 };
 

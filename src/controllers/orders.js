@@ -5,22 +5,12 @@ const Product = require('../models/Products');
 const Order = require('../models/Orders');
 const db = require('../database/db');
 const paypal = require('../utils/paypal');
+const handleErrors = require("../utils/handleErrors");
 
 const createOrders = async (req, res = response) => {
     console.log('----> Petición a /api/orders/createOrders');
 
     const { orderItems, total } = req.body;
-
-    // Recuperamos los headers y token
-    const headers = req.headers;
-    const token = headers['x-token'];
-
-    if (!token) {
-        res.status(400).json({
-            ok: false,
-            message: 'Debe estar logeado para realizar esta operación',
-        });
-    }
 
     try {
         await db.connect();
@@ -98,22 +88,13 @@ const createOrders = async (req, res = response) => {
             } catch (error) {
                 // Los errors lanzados dentro del try serán atrapados por este catch
 
-                res.status(400).json({
-                    ok: false,
-                    message: error.message || 'Revise logs del servidor',
-                });
+                handleErrors(res, 400, error.message.toUpperCase())
             }
         } catch (error) {
-            res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(res, 400, error.message.toUpperCase())
         }
     } catch (error) {
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(res, 500, "ERROR_DB")
     } finally {
         await db.disconnect();
     }
@@ -126,10 +107,7 @@ const getOrder = async (req, res = response) => {
     const { id = '' } = req.params;
 
     if (!id) {
-        return res.status(400).json({
-            ok: false,
-            message: 'Id de orden no válido',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_ID")
     }
 
     try {
@@ -147,16 +125,10 @@ const getOrder = async (req, res = response) => {
                 order: orderFound,
             });
         } catch (error) {
-            res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(res, 400, "ERROR_GET_ORDER")
         }
     } catch (error) {
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(res, 500, "ERROR_DB")
     } finally {
         await db.disconnect();
     }
@@ -168,10 +140,7 @@ const gerOrdersByUser = async (req, res = response) => {
     const { id } = req.params;
 
     if (!id) {
-        return res.status(400).json({
-            ok: false,
-            message: 'Id de usuario no válido',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_ID")
     }
 
     try {
@@ -193,16 +162,10 @@ const gerOrdersByUser = async (req, res = response) => {
                 orders: orders ?? [],
             });
         } catch (error) {
-            res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(res, 400, error.message.toUpperCase())
         }
     } catch (error) {
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(res, 500, "ERROR_DB")
     } finally {
         await db.disconnect();
     }
@@ -218,10 +181,7 @@ const payOrder = async (req, res = response) => {
 
     // Si ocurre un error entonces no dejamos continuar
     if (!paypalBearerToken) {
-        res.status(400).json({
-            ok: false,
-            message: 'No se pudo confirmar el token de paypal',
-        });
+        handleErrors(res, 400, "ERROR_VALIDATE_PAYPAL_TOKEN")
     }
 
     // Obtenemos el id de la transacción y de la orden
@@ -242,10 +202,7 @@ const payOrder = async (req, res = response) => {
 
     // Si la orden no esta completa retornamos error
     if (data?.status !== 'COMPLETED') {
-        return res.status(200).json({
-            ok: false,
-            message: 'Orden no válida',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_TOKEN")
     }
 
     try {
@@ -279,16 +236,10 @@ const payOrder = async (req, res = response) => {
                 message: 'Orden Pagada',
             });
         } catch (error) {
-            res.status(400).json({
-                ok: false,
-                message: error.message,
-            });
+            handleErrors(res, 400, error.message.toUpperCase())
         }
     } catch (error) {
-        res.status(500).json({
-            ok: true,
-            message: 'Contacte con el soporte',
-        });
+        handleErrors(res, 500, "ERROR_DB")
     } finally {
         await db.disconnect();
     }
