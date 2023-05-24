@@ -1,6 +1,7 @@
 const { response } = require('express');
 const Products = require('../models/Products');
 const db = require('../database/db');
+const handleErrors = require("../utils/handleErrors")
 
 // Obtenemos los productos basados en una palabra
 
@@ -12,10 +13,7 @@ const searchProductsByWord = async (req, res = response) => {
     let { word = '' } = req.params;
 
     if (word.length === 0) {
-        return res.status(400).json({
-            ok: false,
-            message: 'Parámetro de búsqueda no válido',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_PARAM");
     }
 
     try {
@@ -29,8 +27,8 @@ const searchProductsByWord = async (req, res = response) => {
             })
                 .lean()
                 .select('title images price inStock slug -_id');
-
-            await db.disconnect();
+            
+            // TODO: comprobar si cuando no encuentra productos se cae o no la petición
 
             const updatedProducts = products.map((producto) => {
                 producto.images = producto.images.map((image) => {
@@ -46,26 +44,18 @@ const searchProductsByWord = async (req, res = response) => {
                 products: updatedProducts,
             });
         } catch (error) {
-            await db.disconnect();
-            res.status(400).json({
-                ok: false,
-                message: 'Error recuperar el producto',
-            });
+            handleErrors(res, 400, "ERROR_SEARCH_PRODUCT");
         }
     } catch (error) {
+        handleErrors(res, 500, "ERROR_BD");
+    }finally {
         await db.disconnect();
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+
     }
 };
 
 const searchNotFound = async (req, res = response) => {
-    res.status(400).json({
-        ok: false,
-        message: 'Not Found',
-    });
+    handleErrors(res, 404, "ERROR_NOT_FOUND");
 };
 
 module.exports = {
