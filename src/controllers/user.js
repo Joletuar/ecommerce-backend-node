@@ -4,6 +4,7 @@ const db = require('../database/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('../utils/jwt');
 const validations = require('../utils/validations');
+const handleErrors = require("../utils/handleErrors");
 
 const loginUser = async (req, res = response) => {
     console.log('----> Petición a /api/user/login');
@@ -15,34 +16,24 @@ const loginUser = async (req, res = response) => {
     const { email, password } = req.body;
 
     if (!email) {
-        return res.status(400).json({
-            ok: false,
-            message: 'El email y password son obligatorios',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_PASSWORD_EMAIL")
     }
 
     try {
         await db.connect();
+
         try {
             const userFound = await User.findOne({ email });
 
-            await db.disconnect();
-
             if (!userFound) {
-                return res.status(400).json({
-                    ok: false,
-                    message: 'El usuario no existe',
-                });
+                throw new Error ("El usuario no existe")
             }
 
             // Si tenemos el query param hacemos solo validación de email, caso contrario se requiere password
             if (!q || q !== 'vEmail') {
                 // Comparamos el hash vs el password que se envía desde el front
                 if (!bcrypt.compareSync(password, userFound.password)) {
-                    return res.status(400).json({
-                        ok: false,
-                        message: 'Credenciales incorrectas',
-                    });
+                    handleErrors(res, 400, "ERROR_INVALID_CREDENTIALS")
                 }
             }
 
@@ -62,18 +53,12 @@ const loginUser = async (req, res = response) => {
                 },
             });
         } catch (error) {
-            await db.disconnect();
-            res.status(400).json({
-                ok: false,
-                message: 'Error al autenticar el usuario',
-            });
+            handleErrors(res, 400, error.message.toUpperCase())
         }
     } catch (error) {
+        handleErrors(res, 500, "ERROR_DB")
+    }finally {
         await db.disconnect();
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
     }
 };
 
@@ -85,33 +70,21 @@ const registerUser = async (req, res = response) => {
     let { email, password, name, role = 'client' } = req.body;
 
     if (!(email && password && name)) {
-        return res.status(400).json({
-            ok: false,
-            message: 'El email,password y name son obligatorios',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_BODY")
     }
 
     // Verificamos que sea un contraseña válida
     if (password.length < 6 && password !== '@') {
-        return res.status(400).json({
-            ok: false,
-            message: 'La contraseña debe tener un mínimo de 6 caracteres',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_LENGTH_PASSWORD")
     }
 
     // Verificamos que el nombre sea válido
     if (name.length < 3) {
-        return res.status(400).json({
-            ok: false,
-            message: 'El nombre debe tener un mínimo de 3 caracteres',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_LENGTH_NAME")
     }
 
     if (!validations.isValidEmail(email)) {
-        return res.status(400).json({
-            ok: false,
-            message: 'El correo parece ser no válido',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_EMAIL")
     }
 
     email = email.toLowerCase();
@@ -124,11 +97,7 @@ const registerUser = async (req, res = response) => {
             const userFound = await User.findOne({ email });
 
             if (userFound) {
-                await db.disconnect();
-                return res.status(400).json({
-                    ok: false,
-                    message: 'El correo ya se encuentra registrado',
-                });
+               throw new Error('El correo ya se encuentra registrado')
             }
 
             // Hasheamos el password enviado desde el front
@@ -139,8 +108,6 @@ const registerUser = async (req, res = response) => {
 
             // Guardamos la instancia dentro de la bd y obtenemos el documento guardado
             const userRegisterd = await user.save({ validateBeforeSave: true }); // Realizamos validaciones antes de guardar
-
-            await db.disconnect();
 
             // Generamos el token
             const token = jwt.signtToken(
@@ -159,18 +126,13 @@ const registerUser = async (req, res = response) => {
                 },
             });
         } catch (error) {
-            await db.disconnect();
-            res.status(400).json({
-                ok: false,
-                message: 'Error al registrar el usuario',
-            });
+            handleErrors(res, 400, error.message.toUpperCase())
         }
     } catch (error) {
+        handleErrors(res, 500, "ERROR_DB")
+    }finally {
         await db.disconnect();
-        res.status(500).json({
-            ok: false,
-            message: 'Contacte con el soporte',
-        });
+
     }
 };
 
@@ -182,10 +144,7 @@ const checkJWT = async (req, res = response) => {
     const { token } = req.cookies;
 
     if (!token) {
-        return res.status(400).json({
-            ok: false,
-            message: 'No se encontró un token en las cookies',
-        });
+        handleErrors(res, 400, "ERROR_INVALID_TOKEN")
     }
 
     let userId = '';
@@ -197,13 +156,9 @@ const checkJWT = async (req, res = response) => {
             await db.connect();
 
             const userFound = await User.findById(userId).lean();
-            await db.disconnect();
 
             if (!userFound) {
-                return res.status(400).json({
-                    ok: false,
-                    message: 'El usuario no existe',
-                });
+                throw new Error("El usuario no existe")
             }
 
             const { _id, email, role, name } = userFound;
@@ -220,17 +175,13 @@ const checkJWT = async (req, res = response) => {
                 },
             });
         } catch (error) {
-            await db.disconnect();
-            res.status(400).json({
-                ok: false,
-                message: 'Error al revalidar el token',
-            });
+            handleErrors(res, 400, error.message.toUpperCase())
         }
     } catch (error) {
-        res.status(401).json({
-            ok: false,
-            message: 'Token no válido',
-        });
+        handleErrors(res, 500, "ERROR_DB")
+    }finally {
+        await db.disconnect();
+
     }
 };
 
