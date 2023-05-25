@@ -4,7 +4,7 @@ const db = require('../database/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('../utils/jwt');
 const validations = require('../utils/validations');
-const handleErrors = require("../utils/handleErrors");
+const handleErrors = require('../utils/handleErrors');
 
 const loginUser = async (req, res = response) => {
     console.log('----> Petición a /api/user/login');
@@ -16,7 +16,7 @@ const loginUser = async (req, res = response) => {
     const { email, password } = req.body;
 
     if (!email) {
-        handleErrors(res, 400, "ERROR_INVALID_PASSWORD_EMAIL")
+        handleErrors(res, 400, 'ERROR_INVALID_PASSWORD_EMAIL');
     }
 
     try {
@@ -26,14 +26,14 @@ const loginUser = async (req, res = response) => {
             const userFound = await User.findOne({ email });
 
             if (!userFound) {
-                throw new Error ("El usuario no existe")
+                throw new Error('El usuario no existe');
             }
 
             // Si tenemos el query param hacemos solo validación de email, caso contrario se requiere password
             if (!q || q !== 'vEmail') {
                 // Comparamos el hash vs el password que se envía desde el front
                 if (!bcrypt.compareSync(password, userFound.password)) {
-                    handleErrors(res, 400, "ERROR_INVALID_CREDENTIALS")
+                    handleErrors(res, 400, 'ERROR_INVALID_CREDENTIALS');
                 }
             }
 
@@ -53,11 +53,11 @@ const loginUser = async (req, res = response) => {
                 },
             });
         } catch (error) {
-            handleErrors(res, 400, error.message.toUpperCase())
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
-    }finally {
+        handleErrors(res, 500, 'ERROR_DB');
+    } finally {
         await db.disconnect();
     }
 };
@@ -70,21 +70,21 @@ const registerUser = async (req, res = response) => {
     let { email, password, name, role = 'client' } = req.body;
 
     if (!(email && password && name)) {
-        handleErrors(res, 400, "ERROR_INVALID_BODY")
+        handleErrors(res, 400, 'ERROR_INVALID_BODY');
     }
 
     // Verificamos que sea un contraseña válida
     if (password.length < 6 && password !== '@') {
-        handleErrors(res, 400, "ERROR_INVALID_LENGTH_PASSWORD")
+        handleErrors(res, 400, 'ERROR_INVALID_LENGTH_PASSWORD');
     }
 
     // Verificamos que el nombre sea válido
     if (name.length < 3) {
-        handleErrors(res, 400, "ERROR_INVALID_LENGTH_NAME")
+        handleErrors(res, 400, 'ERROR_INVALID_LENGTH_NAME');
     }
 
     if (!validations.isValidEmail(email)) {
-        handleErrors(res, 400, "ERROR_INVALID_EMAIL")
+        handleErrors(res, 400, 'ERROR_INVALID_EMAIL');
     }
 
     email = email.toLowerCase();
@@ -97,7 +97,7 @@ const registerUser = async (req, res = response) => {
             const userFound = await User.findOne({ email });
 
             if (userFound) {
-               throw new Error('El correo ya se encuentra registrado')
+                throw new Error('El correo ya se encuentra registrado');
             }
 
             // Hasheamos el password enviado desde el front
@@ -126,13 +126,12 @@ const registerUser = async (req, res = response) => {
                 },
             });
         } catch (error) {
-            handleErrors(res, 400, error.message.toUpperCase())
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
-    }finally {
+        handleErrors(res, 500, 'ERROR_DB');
+    } finally {
         await db.disconnect();
-
     }
 };
 
@@ -144,7 +143,7 @@ const checkJWT = async (req, res = response) => {
     const { token } = req.cookies;
 
     if (!token) {
-        handleErrors(res, 400, "ERROR_INVALID_TOKEN")
+        handleErrors(res, 400, 'ERROR_INVALID_TOKEN');
     }
 
     let userId = '';
@@ -158,7 +157,7 @@ const checkJWT = async (req, res = response) => {
             const userFound = await User.findById(userId).lean();
 
             if (!userFound) {
-                throw new Error("El usuario no existe")
+                throw new Error('El usuario no existe');
             }
 
             const { _id, email, role, name } = userFound;
@@ -175,13 +174,12 @@ const checkJWT = async (req, res = response) => {
                 },
             });
         } catch (error) {
-            handleErrors(res, 400, error.message.toUpperCase())
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
-    }finally {
+        handleErrors(res, 500, 'ERROR_DB');
+    } finally {
         await db.disconnect();
-
     }
 };
 

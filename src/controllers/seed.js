@@ -1,5 +1,5 @@
 const { response } = require('express');
-const handleErrors = require("../utils/handleErrors")
+const handleErrors = require('../utils/handleErrors');
 
 const Product = require('../models/Products');
 const User = require('../models/Users');
@@ -33,15 +33,12 @@ const loadSeed = async (req, res = response) => {
                 message: 'Data cargada exitosamente',
             });
         } catch (error) {
-
-            handleErrors(res, 400, "ERROR_LOAD_SEED")
+            handleErrors(res, 400, 'ERROR_LOAD_SEED');
         }
-
     } catch (error) {
-        handleErrors(res, 400, "ERROR_DB")
-    }finally{
+        handleErrors(res, 400, 'ERROR_DB');
+    } finally {
         await db.disconnect();
-
     }
 };
 

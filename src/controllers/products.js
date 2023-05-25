@@ -2,7 +2,7 @@ const { response } = require('express');
 const Products = require('../models/Products');
 const db = require('../database/db');
 const { validGenders } = require('../database/constanst');
-const handleErrors = require("../utils/handleErrors");
+const handleErrors = require('../utils/handleErrors');
 
 // Obtenemos todos los productos, o los productos basados en un gender
 
@@ -41,12 +41,11 @@ const getProducts = async (req, res = response) => {
                 products: updatedProducts,
             });
         } catch (error) {
-
-            handleErrors(res, 400, "ERROR_GET_PRODUCTS");
+            handleErrors(res, 400, 'ERROR_GET_PRODUCTS');
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB");
-    }finally {
+        handleErrors(res, 500, 'ERROR_DB');
+    } finally {
         await db.disconnect();
     }
 };
@@ -61,7 +60,7 @@ const getProductBySlug = async (req, res = response) => {
     const { slug = '' } = req.params;
 
     if (slug.length <= 0) {
-        handleErrors(res, 400, "ERROR_INVALID_SLUG");
+        handleErrors(res, 400, 'ERROR_INVALID_SLUG');
     }
 
     if (slug === 'new') {
@@ -82,7 +81,7 @@ const getProductBySlug = async (req, res = response) => {
             const producto = await Products.findOne({ slug }).lean();
 
             if (!producto) {
-                throw new Error ("Producto no encontrado")
+                throw new Error('Producto no encontrado');
             }
 
             producto.images = producto.images.map((image) => {
@@ -99,8 +98,8 @@ const getProductBySlug = async (req, res = response) => {
             handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB");
-    }finally {
+        handleErrors(res, 500, 'ERROR_DB');
+    } finally {
         await db.disconnect();
     }
 };

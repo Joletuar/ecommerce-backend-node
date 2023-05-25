@@ -6,8 +6,7 @@ const Product = require('../models/Products');
 const db = require('../database/db');
 const parserFiles = require('../utils/parserFiles');
 const { v2: cloudinary } = require('cloudinary');
-const handleErrors = require("../utils/handleErrors");
-
+const handleErrors = require('../utils/handleErrors');
 
 const getStatistics = async (req, res = response) => {
     console.log('----> Petición a /api/admin/dashboard');
@@ -28,9 +27,7 @@ const getStatistics = async (req, res = response) => {
             });
         })
         .catch((error) => {
-
-            handleErrors(res, 400, error)
-
+            handleErrors(res, 400, error);
         });
 };
 
@@ -48,14 +45,10 @@ const getUsers = async (req, res = response) => {
                 users,
             });
         } catch (error) {
-
-            handleErrors(req, 400,  "ERROR_GET_USERS");
-
+            handleErrors(req, 400, 'ERROR_GET_USERS');
         }
     } catch (error) {
-
-        handleErrors(req, 500,  "ERROR_DB");
-
+        handleErrors(req, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -67,9 +60,7 @@ const updateUser = async (req, res = response) => {
     const { userId = '', rol = '' } = req.body;
 
     if (!userId || !rol) {
-
-        handleErrors(req, 400,  "ERROR_ID_USER");
-
+        handleErrors(req, 400, 'ERROR_ID_USER');
     }
 
     try {
@@ -96,12 +87,10 @@ const updateUser = async (req, res = response) => {
                 message: 'Rol actualizado con éxito',
             });
         } catch (error) {
-            
-            handleErrors(req, 400,  error.message.toUpperCase());
-
+            handleErrors(req, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(req, 500,  "ERROR_DB");
+        handleErrors(req, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -126,10 +115,10 @@ const getOrders = async (req, res = response) => {
                 orders,
             });
         } catch (error) {
-            handleErrors(req, 400,  "ERROR_GET_ORDERS");
+            handleErrors(req, 400, 'ERROR_GET_ORDERS');
         }
     } catch (error) {
-        handleErrors(req, 500,  "ERROR_DB");
+        handleErrors(req, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -146,27 +135,25 @@ const getProducts = async (req, res = response) => {
             let updatedProducts = null;
 
             if (products) {
-                
                 updatedProducts = products.map((producto) => {
                     producto.images = producto.images.map((image) => {
                         return image.includes('http')
-                        ? image
-                        : `${process.env.HOST_NAME}products/${image}`;
+                            ? image
+                            : `${process.env.HOST_NAME}products/${image}`;
                     });
                     return producto;
                 });
+            }
 
-            } 
-                
             return res.status(200).json({
                 ok: true,
                 products: updatedProducts,
             });
         } catch (error) {
-            handleErrors(req, 400,  "ERROR_GET_PRODUCTS");
+            handleErrors(req, 400, 'ERROR_GET_PRODUCTS');
         }
     } catch (error) {
-        handleErrors(req, 500,  "ERROR_DB");
+        handleErrors(req, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -178,11 +165,11 @@ const updateProducts = async (req, res = response) => {
     const { product = {} } = req.body;
 
     if (!Object.keys(product).length) {
-        handleErrors(req, 400,  "ERROR_BODY_REQUEST");
+        handleErrors(req, 400, 'ERROR_BODY_REQUEST');
     }
 
     if (product?.images.length < 2) {
-        handleErrors(req, 400,  "ERROR_NUMBER_IMAGES");
+        handleErrors(req, 400, 'ERROR_NUMBER_IMAGES');
     }
 
     try {
@@ -224,10 +211,10 @@ const updateProducts = async (req, res = response) => {
                 updatedProduct,
             });
         } catch (error) {
-            handleErrors(req, 400,  error.message.toUpperCase());
+            handleErrors(req, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(req, 500,  "ERROR_DB");
+        handleErrors(req, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -239,11 +226,11 @@ const addProducts = async (req, res = response) => {
     const { product = {} } = req.body;
 
     if (!Object.keys(product).length) {
-        handleErrors(req, 400,  "ERROR_BODY_REQUEST");
+        handleErrors(req, 400, 'ERROR_BODY_REQUEST');
     }
 
     if (product?.images.length < 2) {
-        handleErrors(req, 400,  "ERROR_NUMBER_IMAGES");
+        handleErrors(req, 400, 'ERROR_NUMBER_IMAGES');
     }
 
     try {
@@ -266,10 +253,10 @@ const addProducts = async (req, res = response) => {
                 producto: newProduct,
             });
         } catch (error) {
-            handleErrors(req, 400,  error.message.toUpperCase());
+            handleErrors(req, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(req, 500,  "ERROR_DB");
+        handleErrors(req, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -287,7 +274,7 @@ const uploadFiles = async (req, res = response) => {
             image_url,
         });
     } catch (error) {
-        handleErrors(req, 400,  "ERROR_UPLOAD_FILES");
+        handleErrors(req, 400, 'ERROR_UPLOAD_FILES');
     }
 };
 

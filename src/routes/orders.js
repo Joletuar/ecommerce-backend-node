@@ -5,7 +5,7 @@ const {
     gerOrdersByUser,
     payOrder,
 } = require('../controllers/orders');
-const {verifySession} = require("../middlewares/verifySession")
+const { verifySession } = require('../middlewares/verifySession');
 
 const router = Router();
 

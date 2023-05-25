@@ -5,7 +5,7 @@ const Product = require('../models/Products');
 const Order = require('../models/Orders');
 const db = require('../database/db');
 const paypal = require('../utils/paypal');
-const handleErrors = require("../utils/handleErrors");
+const handleErrors = require('../utils/handleErrors');
 
 const createOrders = async (req, res = response) => {
     console.log('----> Petición a /api/orders/createOrders');
@@ -88,13 +88,13 @@ const createOrders = async (req, res = response) => {
             } catch (error) {
                 // Los errors lanzados dentro del try serán atrapados por este catch
 
-                handleErrors(res, 400, error.message.toUpperCase())
+                handleErrors(res, 400, error.message.toUpperCase());
             }
         } catch (error) {
-            handleErrors(res, 400, error.message.toUpperCase())
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
+        handleErrors(res, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -107,7 +107,7 @@ const getOrder = async (req, res = response) => {
     const { id = '' } = req.params;
 
     if (!id) {
-        handleErrors(res, 400, "ERROR_INVALID_ID")
+        handleErrors(res, 400, 'ERROR_INVALID_ID');
     }
 
     try {
@@ -125,10 +125,10 @@ const getOrder = async (req, res = response) => {
                 order: orderFound,
             });
         } catch (error) {
-            handleErrors(res, 400, "ERROR_GET_ORDER")
+            handleErrors(res, 400, 'ERROR_GET_ORDER');
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
+        handleErrors(res, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -140,7 +140,7 @@ const gerOrdersByUser = async (req, res = response) => {
     const { id } = req.params;
 
     if (!id) {
-        handleErrors(res, 400, "ERROR_INVALID_ID")
+        handleErrors(res, 400, 'ERROR_INVALID_ID');
     }
 
     try {
@@ -162,10 +162,10 @@ const gerOrdersByUser = async (req, res = response) => {
                 orders: orders ?? [],
             });
         } catch (error) {
-            handleErrors(res, 400, error.message.toUpperCase())
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
+        handleErrors(res, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }
@@ -181,7 +181,7 @@ const payOrder = async (req, res = response) => {
 
     // Si ocurre un error entonces no dejamos continuar
     if (!paypalBearerToken) {
-        handleErrors(res, 400, "ERROR_VALIDATE_PAYPAL_TOKEN")
+        handleErrors(res, 400, 'ERROR_VALIDATE_PAYPAL_TOKEN');
     }
 
     // Obtenemos el id de la transacción y de la orden
@@ -202,7 +202,7 @@ const payOrder = async (req, res = response) => {
 
     // Si la orden no esta completa retornamos error
     if (data?.status !== 'COMPLETED') {
-        handleErrors(res, 400, "ERROR_INVALID_TOKEN")
+        handleErrors(res, 400, 'ERROR_INVALID_TOKEN');
     }
 
     try {
@@ -236,10 +236,10 @@ const payOrder = async (req, res = response) => {
                 message: 'Orden Pagada',
             });
         } catch (error) {
-            handleErrors(res, 400, error.message.toUpperCase())
+            handleErrors(res, 400, error.message.toUpperCase());
         }
     } catch (error) {
-        handleErrors(res, 500, "ERROR_DB")
+        handleErrors(res, 500, 'ERROR_DB');
     } finally {
         await db.disconnect();
     }

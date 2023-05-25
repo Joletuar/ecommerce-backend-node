@@ -12,7 +12,6 @@ const parserFiles = async (req) => {
 
     return new Promise((resolve, reject) => {
         form.parse(req, async (err, fields, files) => {
-
             // Si tenemos un error rechazamos
             if (err) {
                 return reject(err);
