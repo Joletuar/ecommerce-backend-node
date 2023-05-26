@@ -3,14 +3,14 @@ const bcrypt = require('bcryptjs');
 const initialData = {
     users: [
         {
-            name: 'Johan Tuarez',
-            email: 'johan@gmail.com',
+            name: 'Admin',
+            email: 'admin@admin.com',
             password: bcrypt.hashSync('123456'), // Hasheamos las passwords, por defecto el salt es de 10. Esto es un hash de una sola vía
             role: 'admin',
         },
         {
-            name: 'Miguel Espinoza',
-            email: 'miguel@gmail.com',
+            name: 'Client',
+            email: 'cliente@gmail.com',
             password: bcrypt.hashSync('123456'),
             role: 'client',
         },
