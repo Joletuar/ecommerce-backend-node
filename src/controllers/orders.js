@@ -1,5 +1,4 @@
 const { response } = require('express');
-const jwt = require('../utils/jwt');
 const User = require('../models/Users');
 const Product = require('../models/Products');
 const Order = require('../models/Orders');
@@ -11,18 +10,17 @@ const createOrders = async (req, res = response) => {
     console.log('----> Petición a /api/orders/createOrders');
 
     const { orderItems, total } = req.body;
+    const { id } = req;
 
     try {
         await db.connect();
 
         try {
-            const id = await jwt.isValidToken(token);
             const user = await User.findById(id);
 
             if (!user) {
                 throw new Error('El usuario no existe');
             }
-
             // Creamos un arreglo con los productos que la persona quiere
             const productosId = orderItems.map((product) => product._id);
 
