@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Este proyecto tuvo como objetivo la implementación de todo un sistema Backend para el Frontend realizado en [Teslo Shop Frontend](https://github.com/Joletuar/ecommerce-next).
+Este proyecto tuvo como objetivo la implementación de todo un sistema Backend para el Frontend realizado en [Teslo Shop Frontend](https://github.com/Joletuar/teslo-shop-frontend).
 Se realizó un sistema RestFull API creando diferentes endpoints para realizar las operaciones de un CRUD con rutas protegidas mediante sessiones generadas usando JWT. La arquitectura utilizada fue de un modelo de 3 capas **(MVC)** para asegurar así que sea escalable y mantenible. La información se alamacena en una base de datos NOSQL como MongoDB para lo cual creó una imagen de docker para que su despliegue sea portable y sencillo de implementar en diferentes entornos usando contenedores.
 
 ## Tecnologías
