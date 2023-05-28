@@ -97,6 +97,14 @@ http://localhost:<TU_PUERTO_CONFIGURADO>/api/seed
 
 Puede utilizar herramientas como [POSTMAN](https://www.postman.com/) para este tipo de cosas.
 
+Luego de realizar esto tendrá acceso a 2 cuentas de pruabas de usuarios creadas de manera automática:
+
+-   Admin: admin@admin.com
+-   Cliente: cliente@gmail.com
+-   Password de ambas: 123456
+
+Si requiere una cuenta propia puede registrarse o ingresar un provider para logearse.
+
 ## Endpoints
 
 #### Semilla
