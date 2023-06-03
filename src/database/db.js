@@ -42,7 +42,11 @@ const connect = async () => {
 
     // Realizamos la conexión con la bd
 
-    await mongoose.connect(process.env.MONGO_URL || '');
+    await mongoose.connect(process.env.MONGO_URL || '', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+
+    });
     mongoConnection.isConnected = 1;
     console.log('---> Conectado a MongoDB:', process.env.MONGO_URL);
 };
