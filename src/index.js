@@ -21,7 +21,7 @@ app.use(
     // Habilitamos que nuestro front tenga acceso
     credentials: true,
     optionSuccessStatus: 200,
-    origin: process.env.FRONT_URL,
+    origin: process.env.FRONT_URL || '*',
   })
 );
 
