@@ -17,12 +17,12 @@ app.use(express.json());
 // CORS
 
 app.use(
-    cors({
-        // Habilitamos que nuestro front tenga acceso
-        credentials: true,
-        optionSuccessStatus: 200,
-        origin: 'http://localhost:3000',
-    })
+  cors({
+    // Habilitamos que nuestro front tenga acceso
+    credentials: true,
+    optionSuccessStatus: 200,
+    origin: 'http://localhost:3000',
+  })
 );
 
 // Nos permite manejar cookies en express
@@ -50,5 +50,5 @@ app.use('/api/admin', require('./routes/admin'));
 // Ponemos a la escucha al servidor
 
 app.listen(process.env.PORT, () => {
-    console.log(`----> Servidor levantado en el puerto ${process.env.PORT}`);
+  console.log(`----> Servidor levantado en el puerto ${process.env.PORT}`);
 });
